@@ -35,7 +35,7 @@ public class Parser {
             return null;
         }
 
-        System.out.println(contents);
+        //System.out.println(contents);
         /*
           Till here all things are loaded now begins the real horror of parsing
           for the sake of simplicity I won't tokenize anything
@@ -89,10 +89,6 @@ public class Parser {
         int k = 0;
         for (int i = 1; i < parsed.length; i++) {
             execs[k++] = (Exec) parsed[i];
-        }
-        System.out.println("---");
-        for (Exec exec : execs) {
-            System.out.println(exec);
         }
         Runner runner = new Runner((int) parsed[0], execs);
         runner.run();

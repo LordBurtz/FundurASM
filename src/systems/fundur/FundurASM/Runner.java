@@ -27,7 +27,6 @@ public class Runner extends Thread{
         while (running && !erred) {
             programCounter++;
             execs[programCounter].exec(this);
-            System.out.println(execs[programCounter].getClass().getSimpleName());
         }
     }
 
