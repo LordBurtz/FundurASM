@@ -2,6 +2,10 @@ package systems.fundur.FundurASM;
 
 import systems.fundur.FundurASM.execs.Exec;
 
+import java.util.Arrays;
+
+import static systems.fundur.FundurASM.util.Logger.log;
+
 public class Runner extends Thread{
     private boolean running;
     private boolean erred;
@@ -23,11 +27,14 @@ public class Runner extends Thread{
 
     @Override
     public void run() {
-        programCounter--;
+        log("Starting Runner... ");
         while (running && !erred) {
-            programCounter++;
             execs[programCounter].exec(this);
+            programCounter++;
+            log("prC: " + programCounter, "exec: " + execs[programCounter].getClass().getSimpleName(), "acc: " + acc);
+            log(Arrays.toString(register));
         }
+        log("Runner finished");
     }
 
     public int getAcc() {

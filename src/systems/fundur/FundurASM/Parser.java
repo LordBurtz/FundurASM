@@ -13,8 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static systems.fundur.FundurASM.util.Logger.log;
+
 public class Parser {
     public static Object[] parse(String filePath) {
+        log("Loading file... ");
         File file = new File(filePath);
         FileInputStream stream;
         try {
@@ -24,6 +27,7 @@ public class Parser {
             System.out.printf("\nFor the given filepath: %s no suitable file is found%n", filePath);
             return null;
         }
+
 
         StringBuilder contents = new StringBuilder();
         int readChar;
@@ -36,6 +40,7 @@ public class Parser {
             e.printStackTrace();
             return null;
         }
+        log ("File successfully loaded");
 
         //System.out.println(contents);
         /*
@@ -44,36 +49,44 @@ public class Parser {
           I'll parse the file as it is only catching the crudest errors
          */
 
+        log ("Starting to parse");
         String asmFile = contents.toString();
         List<Object> instructions = new ArrayList<>();
         final int[] stackSize = {0};
         final int[] currentLine = {0};
+        final int[] offSet = {0};
         Bool failed = new Bool(false);
 
         asmFile.lines().forEach((line) -> {
             currentLine[0]++;
-            if (line.equals("") || line.equals("\n")) return;
+            if (line.equals("") || line.equals("\n")) {
+                offSet[0]++;
+                return;
+            };
 
             line = line.toLowerCase(Locale.ROOT);
             String op = line.split(" +")[0];
             String arg = line.split(" +")[1];
-            if (op.startsWith(";") || op.startsWith("#")) return;
-            if (op.substring(0, 3).equals("all")) stackSize[0] = Integer.parseInt(arg);
-            switch (op.substring(0, 3)) {
-                case "all" ->  stackSize[0] = Integer.parseInt(arg); //allocate
-                case "dlo" -> instructions.add(new DLoad(Integer.parseInt(arg)));       //dload
-                case "jum" -> instructions.add(new Jump(Integer.parseInt(arg)));        //jump to
-                case "jge" -> instructions.add(new JGE(Integer.parseInt(arg)));
-                case "jgt" -> instructions.add(new JGT(Integer.parseInt(arg)));
-                case "jle" -> instructions.add(new JLE(Integer.parseInt(arg)));
-                case "jlt" -> instructions.add(new JLT(Integer.parseInt(arg)));
-                case "jeq" -> instructions.add(new JEQ(Integer.parseInt(arg)));
-                case "jne" -> instructions.add(new JNE(Integer.parseInt(arg)));
-                case "loa" -> safeAdd(new Load(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]); //load
-                case "sto" -> safeAdd(new Store(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);//store
+            if (line.startsWith(";") || line.startsWith("#")) {
+                offSet[0]++;
+                return;
+            }
+            log("#" + currentLine[0], op, arg);
+            switch (op) {
+                case "alloc" ->  stackSize[0] = Integer.parseInt(arg); //allocate
+                case "dload" -> instructions.add(new DLoad(Integer.parseInt(arg)));       //dload
+                case "jump" -> instructions.add(new Jump(Integer.parseInt(arg) - offSet[0]));        //jump to
+                case "jge" -> instructions.add(new JGE(Integer.parseInt(arg) - offSet[0]));
+                case "jgt" -> instructions.add(new JGT(Integer.parseInt(arg) - offSet[0]));
+                case "jle" -> instructions.add(new JLE(Integer.parseInt(arg) - offSet[0]));
+                case "jlt" -> instructions.add(new JLT(Integer.parseInt(arg) - offSet[0]));
+                case "jeq" -> instructions.add(new JEQ(Integer.parseInt(arg) - offSet[0]));
+                case "jne" -> instructions.add(new JNE(Integer.parseInt(arg) - offSet[0]));
+                case "load" -> safeAdd(new Load(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]); //load
+                case "store" -> safeAdd(new Store(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);//store
                 case "add" -> safeAdd(new Add(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 case "sub" -> safeAdd(new Sub(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
-                case "mul" -> safeAdd(new Mult(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                case "mult" -> safeAdd(new Mult(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 case "div" -> safeAdd(new Div(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 case "end" -> safeAdd(new End(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 default -> new InstructionNotFoundError(line, currentLine[0], failed).error();
@@ -81,6 +94,7 @@ public class Parser {
 
         });
 
+        if (!failed.getVal()) log("Successfully parsed %d lines. Stacksize @%d entries\n\n".formatted(currentLine[0], stackSize[0]));
         instructions.add(0, stackSize[0]);
         return failed.getVal() ? null : instructions.toArray();
     }

@@ -1,6 +1,7 @@
 package systems.fundur.FundurASM;
 
 import systems.fundur.FundurASM.execs.Exec;
+import systems.fundur.FundurASM.util.Logger;
 
 import java.util.Arrays;
 
@@ -8,6 +9,8 @@ import static systems.fundur.FundurASM.Parser.parse;
 
 public class Main {
     public static void main(String[] args) {
+        Logger.setDebug(true);
+
         //specify where the file is
         String filePath = "/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm";
 
