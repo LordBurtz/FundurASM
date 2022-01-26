@@ -2,6 +2,7 @@ package systems.fundur.FundurASM;
 
 import systems.fundur.FundurASM.error.InstructionNotFoundError;
 import systems.fundur.FundurASM.execs.*;
+import systems.fundur.FundurASM.util.Bool;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +47,7 @@ public class Parser {
         List<Object> instructions = new ArrayList<>();
         final int[] stackSize = {0};
         final int[] currentLine = {0};
-        Boolean failed = false;
+        Bool failed = new Bool(false);
 
         asmFile.lines().forEach((line) -> {
             currentLine[0]++;
@@ -80,11 +81,12 @@ public class Parser {
         });
 
         instructions.add(0, stackSize[0]);
-        return instructions.toArray();
+        return failed.getVal() ? null : instructions.toArray();
     }
 
     public static void main(String[] args) {
         Object[] parsed = parse("/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm");
+        if (parsed == null) return;
         Exec[] execs = new Exec[parsed.length -1];
         int k = 0;
         for (int i = 1; i < parsed.length; i++) {
