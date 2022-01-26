@@ -9,6 +9,5 @@ Please use with caution, at the moment only absolute filepaths are supported.
 ## Changes made
 | Instruction | change |
 | --- | ---|
-| Alloc | Brand new command, it allocates space in the register. You know have to allocate space in your registry. 
-The interpreter checks whether you are out of bounds or not. |
-| End | New syntax: `END x` where `x` is a number referring to a cell in your registry. The content of that cell is returned. |
+| Alloc | Brand new command, it allocates space in the register. You know have to allocate space in your registry. The interpreter checks whether you are out of bounds or not. |
+| End | New syntax: `END x` where `x` is a number referring to a cell in your registry. The content of that cell is the return code of the dispatched process. |
