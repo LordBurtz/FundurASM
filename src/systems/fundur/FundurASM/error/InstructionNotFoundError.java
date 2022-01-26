@@ -1,7 +1,7 @@
 package systems.fundur.FundurASM.error;
 
 public class InstructionNotFoundError implements Error{
-    private String message;
+    private final String message;
     public InstructionNotFoundError(String content, int line, Boolean failed) {
         message = "\n\n----------\n" +
                 "Instruction unclear in line #%d".formatted(line) + "" +

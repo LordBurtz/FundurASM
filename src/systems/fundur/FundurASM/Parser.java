@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,10 +36,10 @@ public class Parser {
         }
 
         System.out.println(contents);
-        /**
-         * Till here all things are loaded now begins the real horror of parsing
-         * for the sake of simplicity I won't tokenize anything
-         * I'll parse the file as it is only catching the crudest errors
+        /*
+          Till here all things are loaded now begins the real horror of parsing
+          for the sake of simplicity I won't tokenize anything
+          I'll parse the file as it is only catching the crudest errors
          */
 
         String asmFile = contents.toString();
@@ -81,15 +80,19 @@ public class Parser {
         });
 
         instructions.add(0, stackSize[0]);
-        return failed ? null : instructions.toArray();
+        return instructions.toArray();
     }
 
     public static void main(String[] args) {
         Object[] parsed = parse("/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm");
         Exec[] execs = new Exec[parsed.length -1];
         int k = 0;
-        for (int i = 1; i < execs.length; i++) {
+        for (int i = 1; i < parsed.length; i++) {
             execs[k++] = (Exec) parsed[i];
+        }
+        System.out.println("---");
+        for (Exec exec : execs) {
+            System.out.println(exec);
         }
         Runner runner = new Runner((int) parsed[0], execs);
         runner.run();

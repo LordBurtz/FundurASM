@@ -8,9 +8,9 @@ public class Runner extends Thread{
 
     private int returnCode;
     private int acc;
-    private int[] register;
+    private final int[] register;
     private int programCounter;
-    private Exec[] execs;
+    private final Exec[] execs;
 
     public Runner(int stackSize, Exec[] instructions) {
         running = true;
@@ -27,6 +27,7 @@ public class Runner extends Thread{
         while (running && !erred) {
             programCounter++;
             execs[programCounter].exec(this);
+            System.out.println(execs[programCounter].getClass().getSimpleName());
         }
     }
 
