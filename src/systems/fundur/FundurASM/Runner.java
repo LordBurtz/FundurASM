@@ -1,12 +1,32 @@
 package systems.fundur.FundurASM;
 
-public class Runner {
-    private boolean stopped;
+import systems.fundur.FundurASM.execs.Exec;
+
+public class Runner extends Thread{
+    private boolean running;
     private boolean erred;
 
     private int acc;
     private int[] register;
     private int programCounter;
+    private Exec[] execs;
+
+    public Runner(int stackSize, Exec[] instructions) {
+        running = true;
+        erred = false;
+        acc = 0;
+        register = new int[stackSize];
+        execs = instructions;
+    }
+
+    @Override
+    public void run() {
+        programCounter--;
+        while (running && !erred) {
+            programCounter++;
+            execs[programCounter].exec(this);
+        }
+    }
 
     public int getAcc() {
         return acc;
@@ -32,12 +52,12 @@ public class Runner {
         return register[cell];
     }
 
-    public boolean isStopped() {
-        return stopped;
+    public boolean isRunning() {
+        return running;
     }
 
-    public void setStopped(boolean stopped) {
-        this.stopped = stopped;
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 
     public boolean isErred() {

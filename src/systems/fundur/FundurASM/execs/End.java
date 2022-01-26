@@ -9,7 +9,7 @@ public class End extends Exec{
 
     @Override
     public void exec(Runner runner) {
-        runner.setStopped(true);
+        runner.setRunning(false);
         runner.setErred(false);
     }
 }
