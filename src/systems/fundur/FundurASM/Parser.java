@@ -1,5 +1,6 @@
 package systems.fundur.FundurASM;
 
+import systems.fundur.FundurASM.error.InstructionNotFoundError;
 import systems.fundur.FundurASM.execs.*;
 
 import java.io.File;
@@ -7,11 +8,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 public class Parser {
-    public static Exec[] parse(String filePath) {
+    public static Object[] parse(String filePath) {
         File file = new File(filePath);
         FileInputStream stream;
         try {
@@ -42,33 +44,55 @@ public class Parser {
          */
 
         String asmFile = contents.toString();
-        List<Exec> instructions = new ArrayList<>();
-        int stackSize = 0;
+        List<Object> instructions = new ArrayList<>();
+        final int[] stackSize = {0};
+        final int[] currentLine = {0};
+        Boolean failed = false;
 
         asmFile.lines().forEach((line) -> {
-            line = line.toLowerCase(Locale.ROOT);
-            line = line.replaceAll(" ", "");
-            switch (line) {
-                case "load" -> instructions.add(new Load(Integer.parseInt(line.substring(4))));
-                case "dload" -> instructions.add(new DLoad(Integer.parseInt(line.substring(5))));
-                case "store" -> instructions.add(new Store(Integer.parseInt(line.substring(4))));
-                case "add" -> instructions.add(new Add(Integer.parseInt(line.substring(3))));
-                case "sub" -> instructions.add(new Sub(Integer.parseInt(line.substring(3))));
-                case "mult" -> instructions.add(new Mult(Integer.parseInt(line.substring(4))));
+            currentLine[0]++;
+            if (line.equals("") || line.equals("\n")) return;
 
+            line = line.toLowerCase(Locale.ROOT);
+            String op = line.split(" +")[0];
+            String arg = line.split(" +")[1];
+            if (op.startsWith(";") || op.startsWith("#")) return;
+            if (op.substring(0, 3).equals("all")) stackSize[0] = Integer.parseInt(arg);
+            switch (op.substring(0, 3)) {
+                case "loa" -> instructions.add(new Load(Integer.parseInt(arg)));
+                case "dlo" -> instructions.add(new DLoad(Integer.parseInt(arg)));
+                case "sto" -> instructions.add(new Store(Integer.parseInt(arg)));
+                case "add" -> instructions.add(new Add(Integer.parseInt(arg)));
+                case "sub" -> instructions.add(new Sub(Integer.parseInt(arg)));
+                case "mul" -> instructions.add(new Mult(Integer.parseInt(arg)));
+                case "div" -> instructions.add(new Div(Integer.parseInt(arg)));
+                case "jum" -> instructions.add(new Jump(Integer.parseInt(arg)));
+                case "jge" -> instructions.add(new JGE(Integer.parseInt(arg)));
+                case "jgt" -> instructions.add(new JGT(Integer.parseInt(arg)));
+                case "jle" -> instructions.add(new JLE(Integer.parseInt(arg)));
+                case "jlt" -> instructions.add(new JLT(Integer.parseInt(arg)));
+                case "jeq" -> instructions.add(new JEQ(Integer.parseInt(arg)));
+                case "jne" -> instructions.add(new JNE(Integer.parseInt(arg)));
+                case "end" -> instructions.add(new End(Integer.parseInt(arg)));
+                case "all" ->  stackSize[0] = Integer.parseInt(arg);
+                default -> new InstructionNotFoundError(line, currentLine[0], failed).error();
             }
 
         });
 
-        return null;
+        instructions.add(0, stackSize[0]);
+        return failed ? null : instructions.toArray();
     }
 
     public static void main(String[] args) {
-        parse("/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/Parser.java");
-
-        String test = "Dload    187000";
-        test = test.toLowerCase(Locale.ROOT);
-        //test = test.replaceAll(" ", "");
-        System.out.println(test.trim().split(" +")[1]);
+        Object[] parsed = parse("/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm");
+        Exec[] execs = new Exec[parsed.length -1];
+        int k = 0;
+        for (int i = 1; i < execs.length; i++) {
+            execs[k++] = (Exec) parsed[i];
+        }
+        Runner runner = new Runner((int) parsed[0], execs);
+        runner.run();
+        System.out.println(runner.getReturnCode());
     }
 }

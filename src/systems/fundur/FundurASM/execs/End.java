@@ -11,5 +11,6 @@ public class End extends Exec{
     public void exec(Runner runner) {
         runner.setRunning(false);
         runner.setErred(false);
+        runner.setReturnCode(runner.get(0));
     }
 }

@@ -6,6 +6,7 @@ public class Runner extends Thread{
     private boolean running;
     private boolean erred;
 
+    private int returnCode;
     private int acc;
     private int[] register;
     private int programCounter;
@@ -17,6 +18,7 @@ public class Runner extends Thread{
         acc = 0;
         register = new int[stackSize];
         execs = instructions;
+        programCounter = 0;
     }
 
     @Override
@@ -66,5 +68,13 @@ public class Runner extends Thread{
 
     public void setErred(boolean erred) {
         this.erred = erred;
+    }
+
+    public int getReturnCode() {
+        return returnCode;
+    }
+
+    public void setReturnCode(int returnCode) {
+        this.returnCode = returnCode;
     }
 }

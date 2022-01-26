@@ -1,0 +1,6 @@
+Alloc 1
+dload 1
+store 0
+dload 1
+add 0
+end 0
