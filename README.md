@@ -3,7 +3,7 @@
 #### Licensed under GPLv2, all rights reserved
 
 ## Running it
-(Sadly no release atm, soon™)  
+(Sadly no .jar release atm, soon™)  
 Clone this project via git (or download it directly)
 ```shell
 git clone https://github.com/LordBurtz/FundurASM.git
