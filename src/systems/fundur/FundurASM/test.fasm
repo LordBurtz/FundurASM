@@ -1,6 +1,6 @@
 Alloc 1
 dload 1
-store 7
+store 0
 dload 1
 add 0
 store 0
