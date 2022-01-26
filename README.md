@@ -21,4 +21,8 @@ Enjoy your code being compiled!
 
 ## The intention
 This interpreter is written to help students in germany who use assembly-like code to get that code interpreted.
-Please use with caution, at the moment only absolute filepaths are supported.
+Please use with caution, at the moment only absolute filepaths are supported.  
+<details>
+  <summary></summary>
+    Any% glitchless speedrun, interpreter & parser finished @2.29h
+</details>
