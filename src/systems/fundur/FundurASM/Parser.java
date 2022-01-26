@@ -1,6 +1,7 @@
 package systems.fundur.FundurASM;
 
 import systems.fundur.FundurASM.error.InstructionNotFoundError;
+import systems.fundur.FundurASM.error.RegistryOutOfBoundsError;
 import systems.fundur.FundurASM.execs.*;
 import systems.fundur.FundurASM.util.Bool;
 
@@ -59,22 +60,22 @@ public class Parser {
             if (op.startsWith(";") || op.startsWith("#")) return;
             if (op.substring(0, 3).equals("all")) stackSize[0] = Integer.parseInt(arg);
             switch (op.substring(0, 3)) {
-                case "loa" -> instructions.add(new Load(Integer.parseInt(arg)));
-                case "dlo" -> instructions.add(new DLoad(Integer.parseInt(arg)));
-                case "sto" -> instructions.add(new Store(Integer.parseInt(arg)));
-                case "add" -> instructions.add(new Add(Integer.parseInt(arg)));
-                case "sub" -> instructions.add(new Sub(Integer.parseInt(arg)));
-                case "mul" -> instructions.add(new Mult(Integer.parseInt(arg)));
-                case "div" -> instructions.add(new Div(Integer.parseInt(arg)));
-                case "jum" -> instructions.add(new Jump(Integer.parseInt(arg)));
+                case "all" ->  stackSize[0] = Integer.parseInt(arg); //allocate
+                case "dlo" -> instructions.add(new DLoad(Integer.parseInt(arg)));       //dload
+                case "jum" -> instructions.add(new Jump(Integer.parseInt(arg)));        //jump to
                 case "jge" -> instructions.add(new JGE(Integer.parseInt(arg)));
                 case "jgt" -> instructions.add(new JGT(Integer.parseInt(arg)));
                 case "jle" -> instructions.add(new JLE(Integer.parseInt(arg)));
                 case "jlt" -> instructions.add(new JLT(Integer.parseInt(arg)));
                 case "jeq" -> instructions.add(new JEQ(Integer.parseInt(arg)));
                 case "jne" -> instructions.add(new JNE(Integer.parseInt(arg)));
-                case "end" -> instructions.add(new End(Integer.parseInt(arg)));
-                case "all" ->  stackSize[0] = Integer.parseInt(arg);
+                case "loa" -> safeAdd(new Load(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]); //load
+                case "sto" -> safeAdd(new Store(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);//store
+                case "add" -> safeAdd(new Add(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                case "sub" -> safeAdd(new Sub(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                case "mul" -> safeAdd(new Mult(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                case "div" -> safeAdd(new Div(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                case "end" -> safeAdd(new End(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 default -> new InstructionNotFoundError(line, currentLine[0], failed).error();
             }
 
@@ -82,6 +83,14 @@ public class Parser {
 
         instructions.add(0, stackSize[0]);
         return failed.getVal() ? null : instructions.toArray();
+    }
+
+    private static final void safeAdd(Exec func, Bool failed, int stackSize, List<Object> instructions, int lineN) {
+        if (func.getParameter() < stackSize && func.getParameter() >= 0) {
+            instructions.add(func);
+        } else {
+            new RegistryOutOfBoundsError(func, stackSize, lineN, failed).error();
+        }
     }
 
     public static void main(String[] args) {
