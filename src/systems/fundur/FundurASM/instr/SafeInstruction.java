@@ -6,7 +6,7 @@ import systems.fundur.FundurASM.util.Bool;
 
 public abstract class SafeInstruction extends Instruction{
     @Override
-    protected Exec getInstance(int param, Bool failed, int stackSize, int lineN) {
+    protected Exec getInstance(int param, Bool failed, int stackSize, int lineN, int offSet) {
         if (param < stackSize && param >= 0) {
             return safeGet(param);
         } else {

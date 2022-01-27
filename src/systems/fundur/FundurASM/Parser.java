@@ -79,7 +79,6 @@ public class Parser {
         }
         log ("File successfully loaded");
 
-        //System.out.println(contents);
         /*
           Till here all things are loaded now begins the real horror of parsing
           for the sake of simplicity I won't tokenize anything
@@ -109,7 +108,7 @@ public class Parser {
                 return;
             }
             if (lib.containsKey(op)) {
-                instructions.add(lib.get(op).getExec(Integer.parseInt(arg), failed, stackSize[0],currentLine[0]));
+                instructions.add(lib.get(op).getExec(Integer.parseInt(arg), failed, stackSize[0], currentLine[0], offSet[0]));
                 return;
             }
             log("#" + currentLine[0], op, arg);
