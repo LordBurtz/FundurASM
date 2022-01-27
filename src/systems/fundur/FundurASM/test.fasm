@@ -6,7 +6,4 @@ store 0
 dload 1
 add 0
 store 0
-dload -2
-add 0
-jeq 6
 end 0

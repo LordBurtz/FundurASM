@@ -3,19 +3,27 @@ package systems.fundur.FundurASM;
 import systems.fundur.FundurASM.error.InstructionNotFoundError;
 import systems.fundur.FundurASM.error.RegistryOutOfBoundsError;
 import systems.fundur.FundurASM.execs.*;
+import systems.fundur.FundurASM.instr.Instruction;
 import systems.fundur.FundurASM.util.Bool;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static systems.fundur.FundurASM.util.Logger.log;
 
 public class Parser {
+
+    private static Map<String, Instruction> lib;
+
+    static {
+        lib = new HashMap<>();
+
+        lib.put("add", new systems.fundur.FundurASM.instr.Add());
+    }
+
     public static Object[] parse(String filePath) {
         log("Loading file... ");
         File file = new File(filePath);
@@ -71,6 +79,10 @@ public class Parser {
                 offSet[0]++;
                 return;
             }
+            if (lib.containsKey(op)) {
+                instructions.add(lib.get(op).getExec(Integer.parseInt(arg), failed, stackSize[0],currentLine[0]));
+                return;
+            }
             log("#" + currentLine[0], op, arg);
             switch (op) {
                 case "alloc" ->  stackSize[0] = Integer.parseInt(arg); //allocate
@@ -84,7 +96,7 @@ public class Parser {
                 case "jne" -> instructions.add(new JNE(Integer.parseInt(arg) - offSet[0]));
                 case "load" -> safeAdd(new Load(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]); //load
                 case "store" -> safeAdd(new Store(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);//store
-                case "add" -> safeAdd(new Add(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                //case "add" -> safeAdd(new Add(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 case "sub" -> safeAdd(new Sub(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 case "mult" -> safeAdd(new Mult(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 case "div" -> safeAdd(new Div(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
