@@ -2,9 +2,20 @@ package systems.fundur.FundurASM;
 
 import systems.fundur.FundurASM.error.InstructionNotFoundError;
 import systems.fundur.FundurASM.error.RegistryOutOfBoundsError;
-import systems.fundur.FundurASM.execs.*;
+import systems.fundur.FundurASM.execs.Exec;
+import systems.fundur.FundurASM.instr.DLoad;
+import systems.fundur.FundurASM.instr.End;
 import systems.fundur.FundurASM.instr.Instruction;
+import systems.fundur.FundurASM.instr.JEQ;
+import systems.fundur.FundurASM.instr.JGE;
+import systems.fundur.FundurASM.instr.JGT;
+import systems.fundur.FundurASM.instr.JLE;
+import systems.fundur.FundurASM.instr.JLT;
+import systems.fundur.FundurASM.instr.JNE;
+import systems.fundur.FundurASM.instr.Jump;
+import systems.fundur.FundurASM.instr.Load;
 import systems.fundur.FundurASM.util.Bool;
+import systems.fundur.FundurASM.instr.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +32,25 @@ public class Parser {
     static {
         lib = new HashMap<>();
 
-        lib.put("add", new systems.fundur.FundurASM.instr.Add());
+        registerInstruction("add", new systems.fundur.FundurASM.instr.Add());
+        registerInstruction("sub", new systems.fundur.FundurASM.instr.Sub());
+        registerInstruction("mult", new systems.fundur.FundurASM.instr.Mult());
+        registerInstruction("div", new systems.fundur.FundurASM.instr.Div());
+        registerInstruction("end", new systems.fundur.FundurASM.instr.End());
+        registerInstruction("load", new systems.fundur.FundurASM.instr.Load());
+        registerInstruction("store", new systems.fundur.FundurASM.instr.Store());
+        registerInstruction("dload", new DLoad());
+        registerInstruction("jump", new Jump());
+        registerInstruction("jge", new JGE());
+        registerInstruction("jgt", new JGT());
+        registerInstruction("jle", new JLE());
+        registerInstruction("jlt", new JLT());
+        registerInstruction("jeq", new JEQ());
+        registerInstruction("jne", new JNE());
+    }
+
+    public static void registerInstruction(String key, Instruction instruction) {
+        lib.put(key, instruction);
     }
 
     public static Object[] parse(String filePath) {
@@ -86,21 +115,21 @@ public class Parser {
             log("#" + currentLine[0], op, arg);
             switch (op) {
                 case "alloc" ->  stackSize[0] = Integer.parseInt(arg); //allocate
-                case "dload" -> instructions.add(new DLoad(Integer.parseInt(arg)));       //dload
-                case "jump" -> instructions.add(new Jump(Integer.parseInt(arg) - offSet[0]));        //jump to
-                case "jge" -> instructions.add(new JGE(Integer.parseInt(arg) - offSet[0]));
-                case "jgt" -> instructions.add(new JGT(Integer.parseInt(arg) - offSet[0]));
-                case "jle" -> instructions.add(new JLE(Integer.parseInt(arg) - offSet[0]));
-                case "jlt" -> instructions.add(new JLT(Integer.parseInt(arg) - offSet[0]));
-                case "jeq" -> instructions.add(new JEQ(Integer.parseInt(arg) - offSet[0]));
-                case "jne" -> instructions.add(new JNE(Integer.parseInt(arg) - offSet[0]));
-                case "load" -> safeAdd(new Load(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]); //load
-                case "store" -> safeAdd(new Store(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);//store
+                //case "dload" -> instructions.add(new DLoad(Integer.parseInt(arg)));       //dload
+                //case "jump" -> instructions.add(new Jump(Integer.parseInt(arg) - offSet[0]));        //jump to
+                //case "jge" -> instructions.add(new JGE(Integer.parseInt(arg) - offSet[0]));
+                //ase "jgt" -> instructions.add(new JGT(Integer.parseInt(arg) - offSet[0]));
+                //case "jle" -> instructions.add(new JLE(Integer.parseInt(arg) - offSet[0]));
+                //case "jlt" -> instructions.add(new JLT(Integer.parseInt(arg) - offSet[0]));
+                //case "jeq" -> instructions.add(new JEQ(Integer.parseInt(arg) - offSet[0]));
+                //case "jne" -> instructions.add(new JNE(Integer.parseInt(arg) - offSet[0]));
+                //case "load" -> safeAdd(new Load(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]); //load
+                //case "store" -> safeAdd(new Store(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);//store
                 //case "add" -> safeAdd(new Add(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
-                case "sub" -> safeAdd(new Sub(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
-                case "mult" -> safeAdd(new Mult(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
-                case "div" -> safeAdd(new Div(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
-                case "end" -> safeAdd(new End(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                //case "sub" -> safeAdd(new Sub(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                //case "mult" -> safeAdd(new Mult(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                //case "div" -> safeAdd(new Div(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
+                //case "end" -> safeAdd(new End(Integer.parseInt(arg)), failed, stackSize[0], instructions, currentLine[0]);
                 default -> new InstructionNotFoundError(line, currentLine[0], failed).error();
             }
 

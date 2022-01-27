@@ -10,8 +10,6 @@ public class Add extends SafeInstruction{
         return new systems.fundur.FundurASM.execs.Add(param);
     }
 
-    @Override
-    protected void error(int param, int stackSize, int lineN, Bool failed) {
-        new RegistryOutOfBoundsError(this.getClass().getSimpleName(), param, stackSize, lineN, failed).error();
-    }
+    //@Override
+
 }

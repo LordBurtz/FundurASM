@@ -31,6 +31,7 @@ public class Runner extends Thread{
         while (running && !erred) {
             execs[programCounter].exec(this);
             programCounter++;
+            Arrays.toString(execs);
             //log("prC: " + programCounter, "exec: " + execs[programCounter].getClass().getSimpleName(), "acc: " + acc);
             //log(Arrays.toString(register));
         }

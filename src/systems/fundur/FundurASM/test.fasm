@@ -1,9 +1,10 @@
 ; this is a comment and
 ; this is the main test file
 Alloc 1
-dload 1
+dload 2
 store 0
-dload 1
+jump 8
+dload 2
 add 0
 store 0
 end 0

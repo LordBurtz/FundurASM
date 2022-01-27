@@ -9,6 +9,6 @@ public class Jump extends Exec{
 
     @Override
     public void exec(Runner runner) {
-        runner.setProgramCounter(parameter -1);
+        runner.setProgramCounter(parameter -2);
     }
 }
