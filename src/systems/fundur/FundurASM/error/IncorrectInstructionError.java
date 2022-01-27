@@ -2,9 +2,9 @@ package systems.fundur.FundurASM.error;
 
 import systems.fundur.FundurASM.util.Bool;
 
-public class InstructionNotFoundError implements Error{
+public class IncorrectInstructionError implements Error{
     private final String message;
-    public InstructionNotFoundError(String content, int line, Bool failed) {
+    public IncorrectInstructionError(String content, int line, Bool failed) {
         message = "\n\n----------\n" +
                 "Instruction unclear in line #%d".formatted(line) + "" +
                 "\n Instruction: --> %s <-- was not found!".formatted(content) +

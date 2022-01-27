@@ -9,6 +9,6 @@ public class JEQ extends Exec{
 
     @Override
     public void exec(Runner runner) {
-        if (runner.getAcc() == 0) runner.setProgramCounter(parameter);
+        if (runner.getAcc() == 0) runner.setProgramCounter(parameter -2);
     }
 }

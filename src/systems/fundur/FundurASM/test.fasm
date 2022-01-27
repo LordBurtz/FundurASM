@@ -1,12 +1,10 @@
 ; this is a comment and
 ; this is the main test file
-Alloc 1
-dload 1
+#Alloc 1
+dload 2
 store 0
-dload 1
+jne 10
+dload 2
 add 0
 store 0
-dload -2
-add 0
-jeq 6
 end 0
