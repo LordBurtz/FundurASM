@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static systems.fundur.asm.util.Logger.log;
 
@@ -86,15 +87,16 @@ public class Parser {
         log ("Starting to parse");
         List<Object> instructions = new ArrayList<>();
         Map<String, Library> loadedLibs = new HashMap<>();
-        final int[] stackSize = {0};
-        final int[] currentLine = {0};
-        final int[] offSet = {0};
+        AtomicInteger currentLine = new AtomicInteger(0);
+        AtomicInteger stackSize = new AtomicInteger(0);
+        AtomicInteger offSet = new AtomicInteger(0);
         Bool failed = new Bool(false);
 
         asmFile.lines().forEach((line) -> {
-            currentLine[0]++;
+            currentLine.incrementAndGet();
+
             if (line.equals("\n") || line.isEmpty() || line.isBlank() || line.startsWith(";")) {
-                offSet[0]++;
+                offSet.incrementAndGet();
                 return;
             }
 
@@ -106,25 +108,25 @@ public class Parser {
                 op = op.substring(1);
                 switch (op) {
                     case "alloc":
-                        stackSize[0] = Integer.parseInt(arg);
+                        stackSize.set(Integer.parseInt(arg));
                         break;
                     case "include":
                         if (libs.containsKey(arg)) {
                             loadedLibs.put(arg, libs.get(arg));
                         } else {
-                            new LibraryNotFoundError(arg, currentLine[0], failed).error();
+                            new LibraryNotFoundError(arg, currentLine.get(), failed).error();
                         }
                         break;
                     default:
                         //handle it like a comment
                         break;
                 }
-                offSet[0]++;
+                offSet.incrementAndGet();
                 return;
             }
 
             if (funcs.containsKey(op)) {
-                instructions.add(funcs.get(op).getExec(Integer.parseInt(arg), failed, stackSize[0], currentLine[0], offSet[0]));
+                instructions.add(funcs.get(op).getExec(Integer.parseInt(arg), failed, stackSize.get(), currentLine.get(), offSet.get()));
                 return;
             }
 
@@ -132,18 +134,18 @@ public class Parser {
                 String[] libInstructions = op.split("\\.");
                 if (loadedLibs.containsKey(libInstructions[0])) {
                     instructions.add(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]).getExec(
-                            Integer.parseInt(arg), failed, stackSize[0], currentLine[0], offSet[0]));
+                            Integer.parseInt(arg), failed, stackSize.get(), currentLine.get(), offSet.get()));
                     return;
                 }
             } catch (IndexOutOfBoundsException ignored){}
 
 
-            log("#" + currentLine[0], op, arg);
-            new IncorrectInstructionError(line, currentLine[0], failed).error();
+            log("#" + currentLine.get(), op, arg);
+            new IncorrectInstructionError(line, currentLine.get(), failed).error();
         });
 
-        if (!failed.getVal()) log("Successfully parsed %d lines. Stacksize @%d entries\n\n".formatted(currentLine[0], stackSize[0]));
-        instructions.add(0, stackSize[0]);
+        if (!failed.getVal()) log("Successfully parsed %d lines. Stacksize @%d entries\n\n".formatted(currentLine.get(), stackSize.get()));
+        instructions.add(0, stackSize.get());
         return failed.getVal() ? null : instructions.toArray();
     }
 

@@ -11,7 +11,7 @@ git clone https://github.com/LordBurtz/FundurASM.git
 ```  
 Open it in your favourite IDE or whatever  
 Specify your filepath in the `Main.java`.
-Enjoy your code being compiled!
+Enjoy your code being interpreted!
 
 ## Changes made
 All interpeter settings such as `alloc` have to have `#` prepended, otherwise the compiler won't read them
