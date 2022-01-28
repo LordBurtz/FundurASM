@@ -7,7 +7,7 @@ jne 10
 dload 2
 add 0
 store 0
-dload 4
+dload 5
 math.mod 0
 store 0
 end 0

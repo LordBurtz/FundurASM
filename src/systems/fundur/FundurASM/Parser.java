@@ -1,6 +1,7 @@
 package systems.fundur.FundurASM;
 
 import systems.fundur.FundurASM.error.IncorrectInstructionError;
+import systems.fundur.FundurASM.error.LibraryNotFoundError;
 import systems.fundur.FundurASM.execs.Exec;
 import systems.fundur.FundurASM.lib.Library;
 import systems.fundur.FundurASM.lib.base.*;
@@ -13,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static systems.fundur.FundurASM.util.Logger.log;
 
@@ -108,7 +110,11 @@ public class Parser {
                         stackSize[0] = Integer.parseInt(arg);
                         break;
                     case "include":
-                        loadedLibs.put(arg, libs.get(arg));
+                        if (libs.containsKey(arg)) {
+                            loadedLibs.put(arg, libs.get(arg));
+                        } else {
+                            new LibraryNotFoundError(arg, currentLine[0], failed).error();
+                        }
                         break;
                     default:
                         //handle it like a comment
@@ -126,7 +132,8 @@ public class Parser {
             try {
                 String[] libInstructions = op.split("\\.");
                 if (loadedLibs.containsKey(libInstructions[0])) {
-                    instructions.add(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]).getExec(Integer.parseInt(arg), failed, stackSize[0], currentLine[0], offSet[0]));
+                    instructions.add(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]).getExec(
+                            Integer.parseInt(arg), failed, stackSize[0], currentLine[0], offSet[0]));
                     return;
                 }
             } catch (IndexOutOfBoundsException ignored){};
