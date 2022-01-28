@@ -7,5 +7,6 @@ public class Test {
         AtomicInteger ai = new AtomicInteger(0);
         ai.incrementAndGet();
         System.out.println(ai.get());
+        System.out.println(Integer.parseInt("blah"));
     }
 }

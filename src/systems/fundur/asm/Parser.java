@@ -6,6 +6,7 @@ import systems.fundur.asm.execs.Exec;
 import systems.fundur.asm.lib.Library;
 import systems.fundur.asm.lib.base.*;
 import systems.fundur.asm.lib.math.Math;
+import systems.fundur.asm.util.BinFormat;
 import systems.fundur.asm.util.Bool;
 import systems.fundur.asm.util.Logger;
 
@@ -147,6 +148,20 @@ public class Parser {
         if (!failed.getVal()) log("Successfully parsed %d lines. Stacksize @%d entries\n\n".formatted(currentLine.get(), stackSize.get()));
         instructions.add(0, stackSize.get());
         return failed.getVal() ? null : instructions.toArray();
+    }
+
+    public static int parseArgument(String arg, Bool failed) {
+        try {
+            return Integer.parseInt(arg);
+        } catch (NumberFormatException ignored) {}
+        switch (arg.charAt(0)) {
+            case 'x':
+                return HexFormat.fromHexDigits(arg.substring(1));
+            case 'b':
+                return (int) BinFormat.parseBinary(arg.substring(1));
+            default:
+                throw new IllegalStateException("Unexpected value: " + arg.charAt(0));
+        }
     }
 
     public static void main(String[] args) {
