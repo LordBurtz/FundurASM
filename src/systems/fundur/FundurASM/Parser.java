@@ -6,6 +6,7 @@ import systems.fundur.FundurASM.lib.Library;
 import systems.fundur.FundurASM.lib.base.*;
 import systems.fundur.FundurASM.lib.math.Math;
 import systems.fundur.FundurASM.util.Bool;
+import systems.fundur.FundurASM.util.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -125,7 +126,8 @@ public class Parser {
             try {
                 String[] libInstructions = op.split("\\.");
                 if (loadedLibs.containsKey(libInstructions[0])) {
-                    instructions.add(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]));
+                    instructions.add(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]).getExec(Integer.parseInt(arg), failed, stackSize[0], currentLine[0], offSet[0]));
+                    return;
                 }
             } catch (IndexOutOfBoundsException ignored){};
 
@@ -140,6 +142,7 @@ public class Parser {
     }
 
     public static void main(String[] args) {
+        Logger.setDebug(false);
         Object[] parsed = parseFromFile("/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm");
         if (parsed == null) return;
         Exec[] execs = new Exec[parsed.length -1];

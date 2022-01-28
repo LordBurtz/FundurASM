@@ -9,4 +9,5 @@ add 0
 store 0
 dload 4
 math.mod 0
+store 0
 end 0
