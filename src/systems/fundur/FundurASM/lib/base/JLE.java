@@ -1,4 +1,4 @@
-package systems.fundur.FundurASM.instr;
+package systems.fundur.FundurASM.lib.base;
 
 import systems.fundur.FundurASM.execs.Exec;
 import systems.fundur.FundurASM.util.Bool;

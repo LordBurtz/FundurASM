@@ -1,10 +1,10 @@
-package systems.fundur.FundurASM.instr;
+package systems.fundur.FundurASM.lib.base;
 
 import systems.fundur.FundurASM.error.RegistryOutOfBoundsError;
 import systems.fundur.FundurASM.execs.Exec;
 import systems.fundur.FundurASM.util.Bool;
 
-public abstract class SafeInstruction extends Instruction{
+public abstract class SafeLoadInstruction extends Instruction{
     @Override
     protected Exec getInstance(int param, Bool failed, int stackSize, int lineN, int offSet) {
         if (param < stackSize && param >= 0) {

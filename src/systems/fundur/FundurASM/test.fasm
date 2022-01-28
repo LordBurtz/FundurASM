@@ -1,5 +1,5 @@
-; this is a comment and
 ; this is the main test file
+#Include math
 #Alloc 1
 dload 2
 store 0
@@ -7,4 +7,6 @@ jne 10
 dload 2
 add 0
 store 0
+dload 4
+math.mod 0
 end 0

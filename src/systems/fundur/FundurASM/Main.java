@@ -3,9 +3,7 @@ package systems.fundur.FundurASM;
 import systems.fundur.FundurASM.execs.Exec;
 import systems.fundur.FundurASM.util.Logger;
 
-import java.util.Arrays;
-
-import static systems.fundur.FundurASM.Parser.parse;
+import static systems.fundur.FundurASM.Parser.parseFromFile;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,7 +13,7 @@ public class Main {
         String filePath = "/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm";
 
         //get the instructions parsed back
-        Object[] parsed = parse(filePath);
+        Object[] parsed = parseFromFile(filePath);
 
         //if erred -> null returned, interrupt at this point
         if (parsed == null) return;

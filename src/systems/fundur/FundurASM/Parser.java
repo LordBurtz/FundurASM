@@ -1,9 +1,10 @@
 package systems.fundur.FundurASM;
 
 import systems.fundur.FundurASM.error.IncorrectInstructionError;
-import systems.fundur.FundurASM.error.RegistryOutOfBoundsError;
 import systems.fundur.FundurASM.execs.Exec;
-import systems.fundur.FundurASM.instr.*;
+import systems.fundur.FundurASM.lib.Library;
+import systems.fundur.FundurASM.lib.base.*;
+import systems.fundur.FundurASM.lib.math.Math;
 import systems.fundur.FundurASM.util.Bool;
 
 import java.io.File;
@@ -17,9 +18,11 @@ import static systems.fundur.FundurASM.util.Logger.log;
 public class Parser {
 
     private static Map<String, Instruction> funcs;
+    private static Map<String, Library> libs;
 
     static {
         funcs = new HashMap<>();
+        libs = new HashMap<>();
 
         registerInstruction("add", new Add());
         registerInstruction("sub", new Sub());
@@ -36,13 +39,19 @@ public class Parser {
         registerInstruction("load", new Load());
         registerInstruction("dload", new DLoad());
         registerInstruction("store", new Store());
+
+        registerLibrary("math", new Math());
     }
 
     public static void registerInstruction(String key, Instruction instruction) {
         funcs.put(key, instruction);
     }
 
-    public static Object[] parse(String filePath) {
+    public static void registerLibrary(String key, Library lib) {
+        libs.put(key, lib);
+    }
+
+    public static Object[] parseFromFile(String filePath) {
         log("Loading file... ");
         File file = new File(filePath);
         FileInputStream stream;
@@ -67,16 +76,14 @@ public class Parser {
             return null;
         }
         log ("File successfully loaded");
-
-        /*
-          Till here all things are loaded now begins the real horror of parsing
-          for the sake of simplicity I won't tokenize anything
-          I'll parse the file as it is only catching the crudest errors
-         */
-
-        log ("Starting to parse");
         String asmFile = contents.toString();
+        return parseFromString(asmFile);
+    }
+
+    public static Object[] parseFromString(String asmFile) {
+        log ("Starting to parse");
         List<Object> instructions = new ArrayList<>();
+        Map<String, Library> loadedLibs = new HashMap<>();
         final int[] stackSize = {0};
         final int[] currentLine = {0};
         final int[] offSet = {0};
@@ -100,7 +107,7 @@ public class Parser {
                         stackSize[0] = Integer.parseInt(arg);
                         break;
                     case "include":
-                        System.out.println("not implemented yet");
+                        loadedLibs.put(arg, libs.get(arg));
                         break;
                     default:
                         //handle it like a comment
@@ -115,6 +122,14 @@ public class Parser {
                 return;
             }
 
+            try {
+                String[] libInstructions = op.split("\\.");
+                if (loadedLibs.containsKey(libInstructions[0])) {
+                    instructions.add(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]));
+                }
+            } catch (IndexOutOfBoundsException ignored){};
+
+
             log("#" + currentLine[0], op, arg);
             new IncorrectInstructionError(line, currentLine[0], failed).error();
         });
@@ -125,7 +140,7 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-        Object[] parsed = parse("/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm");
+        Object[] parsed = parseFromFile("/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm");
         if (parsed == null) return;
         Exec[] execs = new Exec[parsed.length -1];
         int k = 0;

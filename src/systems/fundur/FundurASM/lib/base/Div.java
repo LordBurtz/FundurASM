@@ -1,8 +1,8 @@
-package systems.fundur.FundurASM.instr;
+package systems.fundur.FundurASM.lib.base;
 
 import systems.fundur.FundurASM.execs.Exec;
 
-public class Div extends SafeInstruction{
+public class Div extends SafeLoadInstruction {
     @Override
     protected Exec safeGet(int param) {
         return new systems.fundur.FundurASM.execs.Div(param);
