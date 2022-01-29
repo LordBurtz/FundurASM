@@ -1,5 +1,6 @@
 package systems.fundur.asm;
 
+import systems.fundur.asm.error.IncorrectArgumentError;
 import systems.fundur.asm.error.IncorrectInstructionError;
 import systems.fundur.asm.error.LibraryNotFoundError;
 import systems.fundur.asm.execs.Exec;
@@ -102,14 +103,22 @@ public class Parser {
             }
 
             line = line.toLowerCase(Locale.ROOT);
-            String op = line.split(" +")[0];
-            String arg = line.split(" +")[1];
+            String op, arg;
+            try {
+                op = line.split(" +")[0];
+                arg = line.split(" +")[1];
+            } catch (IndexOutOfBoundsException __) {
+                failed.setVal(true);
+                new IncorrectInstructionError(line, currentLine.get(), failed).error();
+                return;
+            }
 
+            //interpreter flags
             if ( line.startsWith("#")) {
                 op = op.substring(1);
                 switch (op) {
                     case "alloc":
-                        stackSize.set(Integer.parseInt(arg));
+                        stackSize.set(parseArgument(arg, failed));
                         break;
                     case "include":
                         if (libs.containsKey(arg)) {
@@ -126,21 +135,24 @@ public class Parser {
                 return;
             }
 
+            //parsing the instruction if in base
             if (funcs.containsKey(op)) {
-                instructions.add(funcs.get(op).getExec(Integer.parseInt(arg), failed, stackSize.get(), currentLine.get(), offSet.get()));
+                instructions.add(funcs.get(op).getExec(parseArgument(arg, failed), failed, stackSize.get(), currentLine.get(), offSet.get()));
                 return;
             }
 
+            //parsing the instruction if in loaded lib
             try {
                 String[] libInstructions = op.split("\\.");
                 if (loadedLibs.containsKey(libInstructions[0])) {
                     instructions.add(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]).getExec(
-                            Integer.parseInt(arg), failed, stackSize.get(), currentLine.get(), offSet.get()));
+                            parseArgument(arg, failed), failed, stackSize.get(), currentLine.get(), offSet.get()));
                     return;
                 }
-            } catch (IndexOutOfBoundsException ignored){}
+                //continuing even if no instruction found as we will catch that at the end of the line
+            } catch (IndexOutOfBoundsException ignored){/*Empty catch bc we catch that 2 lines later*/}
 
-
+            //seems like previously nothing was found -> throw an error
             log("#" + currentLine.get(), op, arg);
             new IncorrectInstructionError(line, currentLine.get(), failed).error();
         });
@@ -156,17 +168,26 @@ public class Parser {
         } catch (NumberFormatException ignored) {}
         switch (arg.charAt(0)) {
             case 'x':
-                return HexFormat.fromHexDigits(arg.substring(1));
+                try {
+                    return HexFormat.fromHexDigits(arg.substring(1));
+                } catch (NumberFormatException ignored) {
+                    new IncorrectArgumentError(arg, failed).error();
+                    return -1;
+                }
             case 'b':
-                return (int) BinFormat.parseBinary(arg.substring(1));
+                Object res = BinFormat.parseBinary(arg.substring(1));
+                if (res != null) {
+                    return (int) res;
+                }
             default:
-                throw new IllegalStateException("Unexpected value: " + arg.charAt(0));
+                new IncorrectArgumentError(arg, failed).error();
+                return -1;
         }
     }
 
     public static void main(String[] args) {
         Logger.setDebug(false);
-        Object[] parsed = parseFromFile("/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm");
+        Object[] parsed = parseFromFile("/home/fridolin/dev/FundurASM/src/systems/fundur/asm/test.fasm");
         if (parsed == null) return;
         Exec[] execs = new Exec[parsed.length -1];
         int k = 0;
@@ -175,6 +196,7 @@ public class Parser {
         }
         Runner runner = new Runner((int) parsed[0], execs);
         runner.start();
-        System.out.println(runner.getReturnCode());
+        while(runner.isRunning()); //ugly but we can't wait in a static context
+        System.out.println("ret: " + runner.getReturnCode());
     }
 }

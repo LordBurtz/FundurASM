@@ -9,5 +9,9 @@ add 0
 store 0
 dload 5
 math.mod 0
+dload b101
+store 0
+dload xFF
+add 0
 store 0
 end 0
