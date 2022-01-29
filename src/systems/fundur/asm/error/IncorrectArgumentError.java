@@ -3,7 +3,7 @@ package systems.fundur.asm.error;
 import systems.fundur.asm.util.Bool;
 
 public class IncorrectArgumentError implements Error{
-    private String message;
+    private final String message;
 
     public IncorrectArgumentError(String arg, Bool failed) {
         message = "\n\n----------\n" +
