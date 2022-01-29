@@ -22,8 +22,44 @@ import static systems.fundur.asm.util.Logger.log;
 
 public class Parser {
 
+    private final String filePath;
+    private int returnCode;
+
     private static final Map<String, Instruction> funcs;
     private static final Map<String, Library> libs;
+
+    public Parser(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public Object[] parse() {
+        return parseFromFile(filePath);
+    }
+
+    public int execute () {
+        Object[] parsed = parseFromFile(filePath);
+        if (parsed == null) return -1;
+        Exec[] execs = new Exec[parsed.length -1];
+        int k = 0;
+        for (int i = 1; i < parsed.length; i++) {
+            execs[k++] = (Exec) parsed[i];
+        }
+        Runner runner = new Runner((int) parsed[0], execs);
+        runner.start();
+
+        try {
+            runner.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        this.returnCode = runner.getReturnCode();
+        return returnCode;
+    }
+
+    public int getReturnCode() {
+        return returnCode;
+    }
 
     static {
         funcs = new HashMap<>();
@@ -187,16 +223,8 @@ public class Parser {
 
     public static void main(String[] args) {
         Logger.setDebug(false);
-        Object[] parsed = parseFromFile("/home/fridolin/dev/FundurASM/src/systems/fundur/asm/test.fasm");
-        if (parsed == null) return;
-        Exec[] execs = new Exec[parsed.length -1];
-        int k = 0;
-        for (int i = 1; i < parsed.length; i++) {
-            execs[k++] = (Exec) parsed[i];
-        }
-        Runner runner = new Runner((int) parsed[0], execs);
-        runner.start();
-        while(runner.isRunning()); //ugly but we can't wait in a static context
-        System.out.println("ret: " + runner.getReturnCode());
+        Parser parser = new Parser("/home/fridolin/dev/FundurASM/src/systems/fundur/asm/test.fasm");
+        int result = parser.execute();
+        System.out.println("ret: " + parser.getReturnCode());
     }
 }
