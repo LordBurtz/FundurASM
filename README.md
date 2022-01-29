@@ -22,11 +22,13 @@ All interpeter settings such as `alloc` have to have `#` prepended, otherwise th
 | End `<x>`| New syntax: `END x` where `x` is a number referring to a cell in your registry. The content of that cell is the return code of the dispatched process. |
 
 ## Changes
-| Version | changes |
-| --- | ---|
-| Alpha-0-1 | Initial version with some bugs (eg. jumps sometimes failing). All the standard instructions added|
-| Alpha-0-2 | Rewrite of the instruction loading system allowing for more flexibility. Jumps work properly. Custom instructions can be registered now |
-| Alpha-0-3 | Utilizing the flexibility introduced in the last update, now custom libraries can be added and loaded. Considering switching into beta |
+| Version   | changes                                                                                                                                             |
+|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| Alpha-0-1 | Initial version with some bugs (eg. jumps sometimes failing). All the standard instructions added                                                   |
+| Alpha-0-2 | Rewrite of the instruction loading system allowing for more flexibility. Jumps work properly. Custom instructions can be registered now             |
+| Alpha-0-3 | Utilizing the flexibility introduced in the last update, now custom libraries can be added and loaded. Considering switching into beta              |
+| Beta-1-0  | Hex und Binary Numbers supported! Switched to Beta, Refactoring and language updates.. added an argument parser to support multiple number formats. |
+| Beta 1-1  | Arg parser put to use, now Hex and Binary can actually be used, Parser can now be instantiated!                                                     |
 
 ## The intention
 This interpreter is written to help students in germany who use assembly-like code to get that code interpreted.
