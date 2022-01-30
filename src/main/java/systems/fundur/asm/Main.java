@@ -10,7 +10,7 @@ public class Main {
         Logger.setDebug(true);
 
         //specify where the file is
-        String filePath = "/home/fridolin/dev/FundurASM/src/systems/fundur/FundurASM/test.fasm";
+        String filePath = args.length <= 0 ?  "/home/fridolin/dev/FundurASM/test.fasm" : args[0];
 
         //get the instructions parsed back
         Object[] parsed = parseFromFile(filePath);
@@ -29,7 +29,7 @@ public class Main {
         Runner runner = new Runner((int) parsed[0], execs);
 
         //start it
-        runner.start();
+        runner.run();
 
         // get the return value via getReturnCode() and print it
         System.out.println(runner.getReturnCode());

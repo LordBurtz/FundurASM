@@ -44,7 +44,7 @@ public class Parser {
         for (int i = 1; i < parsed.length; i++) {
             execs[k++] = (Exec) parsed[i];
         }
-        Runner runner = new Runner((int) parsed[0], execs);
+        Runner runner = new Runner((    int) parsed[0], execs);
         runner.start();
 
         try {
@@ -206,19 +206,15 @@ public class Parser {
             case 'x':
                 try {
                     return HexFormat.fromHexDigits(arg.substring(1));
-                } catch (NumberFormatException ignored) {
-                    new IncorrectArgumentError(arg, failed).error();
-                    return -1;
-                }
+                } catch (NumberFormatException ignored) {}
             case 'b':
                 Object res = BinFormat.parseBinary(arg.substring(1));
                 if (res != null) {
                     return (int) res;
                 }
-            default:
-                new IncorrectArgumentError(arg, failed).error();
-                return -1;
         }
+        new IncorrectArgumentError(arg, failed).error();
+        return -1;
     }
 
     public static void main(String[] args) {
