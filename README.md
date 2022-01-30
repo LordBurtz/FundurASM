@@ -4,14 +4,14 @@
 
 ## Running it
 Download the latest version from the [Release] tab.  
-Interpret a certain file (eg. `test.fasm`) by running:
+Interpret a certain file (e.g. `test.fasm`) by running:
 ```bash
 java -jar asm.jar test.fasm
 ```
 (asm.jar being the downloaded one)
 
 ## Changes made
-All interpeter settings such as `alloc` have to have `#` prepended, otherwise the compiler won't read them
+All interpreter settings such as `alloc` have to have `#` prepended, otherwise the compiler won't read them
 
 | Instruction     | change                                                                                                                                                                    |
 |-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -31,7 +31,6 @@ All interpeter settings such as `alloc` have to have `#` prepended, otherwise th
 
 ## The intention
 This interpreter is written to help students in germany who use assembly-like code to get that code interpreted.
-Please use with caution, at the moment only absolute filepaths are supported.
 
 ## Contributing
 #### Feel free to contribute!
@@ -44,5 +43,5 @@ about what still needs some work!
 
 <details>
   <summary></summary>
-    Any% glitchless speedrun, interpreter & parser finished @2.29h
+    Any% glitch-less speedrun, interpreter & parser finished @2.29h
 </details>
