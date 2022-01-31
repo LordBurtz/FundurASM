@@ -8,7 +8,15 @@ Interpret a certain file (e.g. `test.fasm`) by running:
 ```bash
 java -jar asm.jar test.fasm
 ```
-(asm.jar being the downloaded one)
+<details>
+  <summary>Errors</summary>
+    <ul>
+     <li>UnsupportedClassVersionError - update to a recent java version (e.g. java-17)</li>
+     <li>Please specify a file - specify your file path as an argument and append it to the command</li>
+     <li>General Errors on Runtime - those specify what went wrong and how it can be fixed</li>
+     <li>Uncaught Exceptions - Errors not intended to happen, please report them at once</li>
+    </ul>
+</details>
 
 ## Changes made
 All interpreter settings such as `alloc` have to have `#` prepended, otherwise the compiler won't read them
