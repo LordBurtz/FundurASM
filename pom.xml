@@ -6,7 +6,9 @@
 
     <groupId>systems.fundur</groupId>
     <artifactId>asm</artifactId>
-    <version>Beta-1-0</version>
+    <version>Beta-1-4</version>
+
+
 
     <build>
         <plugins>
@@ -30,5 +32,12 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.2</version>
+        </dependency>
+    </dependencies>
 
 </project>
