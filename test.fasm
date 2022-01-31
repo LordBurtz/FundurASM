@@ -1,5 +1,5 @@
 ; this is the main test file
-#Include math
+#import math
 #Alloc 1
 dload 2
 store 0

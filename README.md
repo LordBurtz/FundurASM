@@ -21,11 +21,11 @@ java -jar asm.jar test.fasm
 ## Changes made
 All interpreter settings such as `alloc` have to have `#` prepended, otherwise the compiler won't read them
 
-| Instruction     | change                                                                                                                                                                    |
-|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Alloc `<i>`     | Brand new command, it allocates `i` spaces in the register. You now have to allocate space in your registry. The interpreter checks whether you are out of bounds or not. |
-| Include `<lib>` | The library `lib` gets loaded and its method registered. After loading `math` you can call `math.mod` now.                                                                | 
-| End `<x>`       | New syntax: `END x` where `x` is a number referring to a cell in your registry. The content of that cell is the return code of the dispatched process.                    |
+| Instruction    | change                                                                                                                                                                    |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Alloc `<i>`    | Brand new command, it allocates `i` spaces in the register. You now have to allocate space in your registry. The interpreter checks whether you are out of bounds or not. |
+| Import `<lib>` | The library `lib` gets loaded and its methods registered. After loading `math` you can call `math.mod` now.                                                               | 
+| End `<x>`      | New syntax: `END x` where `x` is a number referring to a cell in your registry. The content of that cell is the return code of the dispatched process.                    |
 
 ## Changes
 | Version   | changes                                                                                                                                             |
