@@ -9,8 +9,15 @@ public class Main {
     public static void main(String[] args) {
         Logger.setDebug(true);
 
+        System.out.println("Starting FundurASM | Version Beta 1.4 | All rights reserved");
+
         //specify where the file is
-        String filePath = args.length <= 0 ?  "/home/fridolin/dev/FundurASM/test.fasm" : args[0];
+        if (args.length <= 0) {
+            System.out.println("Please specify a file");
+            return;
+        }
+
+        String filePath = args[0];
 
         //get the instructions parsed back
         Object[] parsed = parseFromFile(filePath);
@@ -37,6 +44,6 @@ public class Main {
         }
 
         // get the return value via getReturnCode() and print it
-        System.out.println(runner.getReturnCode());
+        System.out.println("Return code: " + runner.getReturnCode());
     }
 }
