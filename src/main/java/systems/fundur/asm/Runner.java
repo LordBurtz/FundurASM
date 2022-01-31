@@ -23,6 +23,15 @@ public class Runner extends Thread{
         programCounter = 0;
     }
 
+    public Runner(Program program) {
+        running = true;
+        erred = false;
+        acc = 0;
+        register = new int[program.getStackSize()];
+        execs = program.getExecs().toArray(new Exec[0]);
+        programCounter = 0;
+    }
+
     @Override
     public void run() {
         log("Starting Runner... ");

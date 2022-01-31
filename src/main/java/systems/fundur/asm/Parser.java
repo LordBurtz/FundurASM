@@ -3,63 +3,23 @@ package systems.fundur.asm;
 import systems.fundur.asm.error.IncorrectArgumentError;
 import systems.fundur.asm.error.IncorrectInstructionError;
 import systems.fundur.asm.error.LibraryNotFoundError;
-import systems.fundur.asm.execs.Exec;
 import systems.fundur.asm.lib.Library;
 import systems.fundur.asm.lib.base.*;
 import systems.fundur.asm.lib.math.Math;
 import systems.fundur.asm.util.BinFormat;
 import systems.fundur.asm.util.Bool;
-import systems.fundur.asm.util.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static systems.fundur.asm.util.Logger.log;
 
 public class Parser {
-
-    private final String filePath;
-    private int returnCode;
-
     private static final Map<String, Instruction> funcs;
     private static final Map<String, Library> libs;
-
-    public Parser(String filePath) {
-        this.filePath = filePath;
-    }
-
-    public Object[] parse() {
-        return parseFromFile(filePath);
-    }
-
-    public int execute () {
-        Object[] parsed = parseFromFile(filePath);
-        if (parsed == null) return -1;
-        Exec[] execs = new Exec[parsed.length -1];
-        int k = 0;
-        for (int i = 1; i < parsed.length; i++) {
-            execs[k++] = (Exec) parsed[i];
-        }
-        Runner runner = new Runner((int) parsed[0], execs);
-
-        runner.start();
-        try {
-            runner.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        this.returnCode = runner.getReturnCode();
-        return returnCode;
-    }
-
-    public int getReturnCode() {
-        return returnCode;
-    }
 
     static {
         funcs = new HashMap<>();
@@ -92,7 +52,7 @@ public class Parser {
         libs.put(key, lib);
     }
 
-    public static Object[] parseFromFile(String filePath) {
+    public static Program parseFromFile(String filePath) {
         log("Loading file... ");
         File file = new File(filePath);
         FileInputStream stream;
@@ -118,24 +78,23 @@ public class Parser {
         }
         log ("File successfully loaded");
         String asmFile = contents.toString();
-        return parseFromString(asmFile);
+        return parseFromLines(asmFile.split("\n"));
     }
 
-    public static Object[] parseFromString(String asmFile) {
+    public static Program parseFromLines(String[] lines) {
         log ("Starting to parse");
-        List<Object> instructions = new ArrayList<>();
         Map<String, Library> loadedLibs = new HashMap<>();
-        AtomicInteger currentLine = new AtomicInteger(0);
-        AtomicInteger stackSize = new AtomicInteger(0);
-        AtomicInteger offSet = new AtomicInteger(0);
-        Bool failed = new Bool(false);
 
-        asmFile.lines().forEach((line) -> {
-            currentLine.incrementAndGet();
+        Program program = new Program();
+        ParserState pState = new ParserState();
+
+        for(String line : lines) {
+            pState.incrCurrentLine();
+
 
             if (line.equals("\n") || line.isEmpty() || line.isBlank() || line.startsWith(";")) {
-                offSet.incrementAndGet();
-                return;
+                pState.incrOffSet();
+                continue;
             }
 
             line = line.toLowerCase(Locale.ROOT);
@@ -144,9 +103,9 @@ public class Parser {
                 op = line.split(" +")[0];
                 arg = line.split(" +")[1];
             } catch (IndexOutOfBoundsException __) {
-                failed.setVal(true);
-                new IncorrectInstructionError(line, currentLine.get(), failed).error();
-                return;
+                pState.setFailed(true);
+                new IncorrectInstructionError(line, pState.currentLine, pState.failed).error();
+                continue;
             }
 
             //interpreter flags
@@ -154,48 +113,47 @@ public class Parser {
                 op = op.substring(1);
                 switch (op) {
                     case "alloc":
-                        stackSize.set(parseArgument(arg, failed));
+                        program.setStackSize(parseArgument(arg, pState.failed));
                         break;
-                    case "include":
+                    case "import":
                         if (libs.containsKey(arg)) {
                             loadedLibs.put(arg, libs.get(arg));
                         } else {
-                            new LibraryNotFoundError(arg, currentLine.get(), failed).error();
+                            new LibraryNotFoundError(arg, pState.currentLine, pState.failed).error();
                         }
                         break;
                     default:
                         //handle it like a comment
                         break;
                 }
-                offSet.incrementAndGet();
-                return;
+                pState.incrOffSet();
+                continue;
             }
 
             //parsing the instruction if in base
             if (funcs.containsKey(op)) {
-                instructions.add(funcs.get(op).getExec(parseArgument(arg, failed), failed, stackSize.get(), currentLine.get(), offSet.get()));
-                return;
+                program.append(funcs.get(op).getExec(parseArgument(arg, pState.failed), pState.failed, program.getStackSize(), pState.currentLine, pState.offSet));
+                continue;
             }
 
             //parsing the instruction if in loaded lib
             try {
                 String[] libInstructions = op.split("\\.");
                 if (loadedLibs.containsKey(libInstructions[0])) {
-                    instructions.add(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]).getExec(
-                            parseArgument(arg, failed), failed, stackSize.get(), currentLine.get(), offSet.get()));
-                    return;
+                    program.append(loadedLibs.get(libInstructions[0]).getInstruction(libInstructions[1]).getExec(
+                            parseArgument(arg, pState.failed), pState.failed, program.getStackSize(), pState.currentLine, pState.offSet));
+                    continue;
                 }
                 //continuing even if no instruction found as we will catch that at the end of the line
             } catch (IndexOutOfBoundsException ignored){/*Empty catch bc we catch that 2 lines later*/}
 
             //seems like previously nothing was found -> throw an error
-            log("#" + currentLine.get(), op, arg);
-            new IncorrectInstructionError(line, currentLine.get(), failed).error();
-        });
+            log("#" + pState.currentLine, op, arg);
+            new IncorrectInstructionError(line, pState.currentLine, pState.failed).error();
+        }
 
-        if (!failed.getVal()) log("Successfully parsed %d lines. Stacksize @%d entries\n\n".formatted(currentLine.get(), stackSize.get()));
-        instructions.add(0, stackSize.get());
-        return failed.getVal() ? null : instructions.toArray();
+        if (!pState.failed.getVal()) log("Successfully parsed %d lines. Stacksize @%d entries\n\n".formatted(pState.currentLine, program.getStackSize()));
+        return pState.failed.getVal() ? null : program;
     }
 
     public static int parseArgument(String arg, Bool failed) {
@@ -217,10 +175,58 @@ public class Parser {
         return -1;
     }
 
+    private static class ParserState {
+        Bool failed = new Bool(false);
+        int currentLine = 0;
+        int offSet = 0;
+
+        public Bool getFailed() {
+            return failed;
+        }
+
+        public void setFailed(Bool failed) {
+            this.failed = failed;
+        }
+
+        public int getOffSet() {
+            return offSet;
+        }
+
+        public void setOffSet(int offSet) {
+            this.offSet = offSet;
+        }
+
+        public void incrOffSet() {
+            this.offSet++;
+        }
+
+        public void incrCurrentLine() {
+            this.currentLine++;
+        }
+
+        public void setFailed(boolean val) {
+            failed.setVal(val);
+        }
+    }
+
     public static void main(String[] args) {
-        Logger.setDebug(false);
-        Parser parser = new Parser("/home/fridolin/dev/FundurASM/src/systems/fundur/asm/test.fasm");
-        int result = parser.execute();
-        System.out.println("ret: " + parser.getReturnCode());
+        Program parsed = parseFromFile("test.fasm");
+
+        //if erred -> null returned, interrupt at this point
+        if (parsed == null) return;
+
+        //create our Runner with the instructions and the stack size
+        Runner runner = new Runner(parsed);
+
+        //start it
+        runner.start();
+        try {
+            runner.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // get the return value via getReturnCode() and print it
+        System.out.println("Return code: " + runner.getReturnCode());
     }
 }

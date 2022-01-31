@@ -20,20 +20,13 @@ public class Main {
         String filePath = args[0];
 
         //get the instructions parsed back
-        Object[] parsed = parseFromFile(filePath);
+        Program parsed = parseFromFile(filePath);
 
         //if erred -> null returned, interrupt at this point
         if (parsed == null) return;
 
-        //strip the first entry (the stackSize)
-        Exec[] execs = new Exec[parsed.length -1];
-        int k = 0;
-        for (int i = 1; i < parsed.length; i++) {
-            execs[k++] = (Exec) parsed[i];
-        }
-
         //create our Runner with the instructions and the stack size
-        Runner runner = new Runner((int) parsed[0], execs);
+        Runner runner = new Runner(parsed.getStackSize(), parsed.getExecs().toArray(new Exec[0]));
 
         //start it
         runner.start();
