@@ -36,6 +36,7 @@ All interpreter settings such as `alloc` have to have `#` prepended, otherwise t
 | Beta-1-0  | Hex und Binary Numbers supported! Switched to Beta, Refactoring and language updates.. added an argument parser to support multiple number formats. |
 | Beta 1-1  | Arg parser put to use, now Hex and Binary can actually be used, Parser can now be instantiated!                                                     |
  | Beta 1-3  | First Pre-release, maven introduced. No language syntax changes.                                                                                    |
+ | Beta 1-5  | Moving from various Object[] to classes                                                                                                             |
 
 ## The intention
 This interpreter is written to help students in germany who use assembly-like code to get that code interpreted.
