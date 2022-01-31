@@ -29,7 +29,12 @@ public class Main {
         Runner runner = new Runner((int) parsed[0], execs);
 
         //start it
-        runner.run();
+        runner.start();
+        try {
+            runner.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // get the return value via getReturnCode() and print it
         System.out.println(runner.getReturnCode());

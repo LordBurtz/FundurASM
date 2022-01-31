@@ -44,9 +44,9 @@ public class Parser {
         for (int i = 1; i < parsed.length; i++) {
             execs[k++] = (Exec) parsed[i];
         }
-        Runner runner = new Runner((    int) parsed[0], execs);
-        runner.start();
+        Runner runner = new Runner((int) parsed[0], execs);
 
+        runner.start();
         try {
             runner.join();
         } catch (InterruptedException e) {
